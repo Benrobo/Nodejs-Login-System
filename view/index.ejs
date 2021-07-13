@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <%- include("inc/styles.ejs"); %>    
+</head>
+<body>
+
+    
+    <div class="mt-3 container">
+        <form class="form-group form">
+            <div class="cont">
+                <h2>Login</h2>
+                <div class="alert-cont"></div>
+                <br>
+                <input type="email" name="email" placeholder="Email address" class="form-control m-2">
+                <input type="password" name="password" placeholder="password" class="form-control m-2">
+                
+                <div class="d-flex mb-3">
+                    <button type="button" class="btn log-btn btn-primary m-1">
+                        Login
+                    </button>
+                    <button type="reset" class="btn btn-danger m-1">
+                        Reset
+                    </button>
+                </div>
+                <div class="p-4 mt-2">
+                    <p><a href="/register">Register</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let form = document.querySelector(".form");
+        let btn = document.querySelector(".log-btn")
+        let alertcont = document.querySelector(".alert-cont")
+        let counter = 0;
+
+        btn.onclick = async (e)=>{
+            e.preventDefault()
+
+            let formData = new FormData(form)
+            let newData = Object.fromEntries(formData)
+
+            if(newData.email == "" || newData.password == ""){
+                alert("fields cannot be empty")
+                return false;
+            }
+            else if(typeof newData.email == "number"){
+                alert("Invalid Email Address")
+                return false;
+            }
+            else{
+                let res = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type" : "application/json"
+                    },
+                    body: JSON.stringify(newData)
+                })
+
+                let data =  await res.json()
+                console.log(data)
+                let div = document.createElement("div")
+                alertcont.innerHTML = ""
+                if(data && data.status == "success"){
+                    div.setAttribute("class", "alert alert-success")
+                    div.textContent = data.msg                    
+                    setTimeout(() => {
+                        location.reload()
+                    }, 2000)
+                }else if(data && data.status == "fail"){
+                    counter++;
+                    div.setAttribute("class", "alert alert-danger")
+                    div.textContent = data.msg
+
+                    if(counter == 5){
+                        redirect("/register")
+                    }
+                }
+                alertcont.append(div)
+            }
+        }
+
+        function redirect(route){
+            if(route == "/login"){
+                window.location = "/login"
+            }
+            else if(route == "/home"){
+                window.location = "/home"
+            }
+            else if(route == "/register"){
+                window.location = "/register"
+            }
+        }
+    </script>
+</body>
+</html>

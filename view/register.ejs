@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    
+    <div class="mt-3 container">
+        <form class="form-group form">
+            <div class="cont">
+                <h2>Create Account</h2>
+                <div class="m-1 alert-cont"></div>
+                <input type="username" name="name" placeholder="Username" class="form-control m-2">
+
+                <input type="email" name="email" placeholder="Email Address" class="form-control m-2">
+
+                <input type="password" name="password" placeholder="password" class="form-control m-2">
+                
+                <div class="d-flex">
+                    <button type="button" class="btn reg-btn btn-primary m-1">
+                        Create Account
+                    </button>
+                    <button type="reset" class="btn btn-danger m-1">
+                        Reset
+                    </button>
+                </div>
+                <div class="p-4">
+                    <p><a href="/login">Login</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let form = document.querySelector(".form");
+        let btn = document.querySelector(".reg-btn")
+        let alertcont = document.querySelector(".alert-cont")
+        let counter = 0;
+        btn.onclick = async (e)=>{
+            e.preventDefault()
+
+            let formData = new FormData(form)
+            let newData = Object.fromEntries(formData)
+
+            if(newData.name == "" || newData.email == "" || newData.password == ""){
+                alert("fields cannot be empty")
+                return false;
+            }
+            else if(typeof newData.email == "number"){
+                alert("Invalid Email Address")
+                return false;
+            }
+            else{
+                let res = await fetch("/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type" : "application/json"
+                    },
+                    body: JSON.stringify(newData)
+                })
+
+                let data =  await res.json()
+                console.log(data)
+                let div = document.createElement("div")
+                alertcont.innerHTML = ""
+                if(data && data.status == "success"){
+                    div.setAttribute("class", "alert alert-success")
+                    div.textContent = data.msg
+                    // alertcont.append(div)
+                    setTimeout(() => {
+                        redirect("/login")
+                    }, 2000)
+                }else if(data && data.status == "fail"){
+                    counter++;
+                    div.setAttribute("class", "alert alert-danger")
+                    div.textContent = data.msg
+                    if(counet == 5){
+                        redirect("/register")
+                    }
+                }
+                alertcont.append(div)
+            }
+        }
+
+        function redirect(route){
+            if(route == "/login"){
+                window.location = "/login"
+            }else if(route == "/register"){
+                window.location = "/register"
+            }
+        }
+    </script>
+</body>
+</html>
